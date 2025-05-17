@@ -4,7 +4,6 @@ $db   = 'sistema_ruta';
 $user = 'root';
 $pass = '';
 $charset = 'utf8mb4';
-echo password_hash("aprendiz", PASSWORD_DEFAULT);
 
 $dsn = "mysql:host=$host;dbname=$db;charset=$charset";
 $options = [
