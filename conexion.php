@@ -1,19 +1,13 @@
 <?php
-$host = 'localhost';
-$db   = 'sistema_ruta';
-$user = 'root';
-$pass = '';
-$charset = 'utf8mb4';
+$host = "localhost";
+$usuario = "root"; 
+$password = "";    
+$base_datos = "base_ruta"; 
 
-$dsn = "mysql:host=$host;dbname=$db;charset=$charset";
-$options = [
-    PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-];
+$conn = new mysqli($host, $usuario, $password, $base_datos);
 
-try {
-    $pdo = new PDO($dsn, $user, $pass, $options);
-} catch (\PDOException $e) {
-    die("Error en la conexión: " . $e->getMessage());
+if ($conn->connect_error) {
+    die("Error de conexión: " . $conn->connect_error);
 }
 ?>
+

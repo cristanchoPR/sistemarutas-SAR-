@@ -4,32 +4,19 @@ session_start();
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $usuario = $_POST["usuario"];
-    $clave = $_POST["clave"];
+    $clave = password_hash($_POST["clave"], PASSWORD_DEFAULT);
+    $rol = "aprendiz";
 
-    $sql = $conn->prepare("SELECT id, clave, rol FROM usuarios WHERE usuario = ?");
-    $sql->bind_param("s", $usuario);
-    $sql->execute();
-    $sql->store_result();
+    $sql = $conn->prepare("INSERT INTO usuarios (usuario, clave, rol) VALUES (?, ?, ?)");
+    $sql->bind_param("sss", $usuario, $clave, $rol);
 
-    if ($sql->num_rows == 1) {
-        $sql->bind_result($id, $claveHash, $rol);
-        $sql->fetch();
-
-        if (password_verify($clave, $claveHash)) {
-            $_SESSION["usuario"] = $usuario;
-            $_SESSION["usuario_id"] = $id;
-
-            if ($rol === "admin") {
-                header("Location: admin.php");
-            } else {
-                header("Location: aprendiz.php");
-            }
-            exit();
-        } else {
-            $error = "Contraseña incorrecta.";
-        }
+    if ($sql->execute()) {
+        $_SESSION["usuario"] = $usuario;
+        $_SESSION["usuario_id"] = $sql->insert_id;
+        header("Location: aprendiz.php");
+        exit();
     } else {
-        $error = "Usuario no encontrado.";
+        $error = "Error al registrar el usuario. ¿Ya existe?";
     }
 
     $sql->close();
@@ -40,7 +27,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Login</title>
+    <title>Registro</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="bg-light">
@@ -48,7 +35,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <div class="col-md-6 offset-md-3">
         <div class="card shadow">
             <div class="card-body">
-                <h4 class="card-title mb-4 text-center">Iniciar Sesión</h4>
+                <h4 class="card-title mb-4 text-center">Registro de Usuario</h4>
                 <?php if (isset($error)): ?>
                     <div class="alert alert-danger"><?= $error ?></div>
                 <?php endif; ?>
@@ -61,8 +48,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <label class="form-label">Contraseña</label>
                         <input type="password" name="clave" class="form-control" required>
                     </div>
-                    <button type="submit" class="btn btn-primary w-100">Entrar</button>
-                    <a href="registro.php" class="btn btn-link w-100">¿No tienes cuenta? Regístrate</a>
+                    <button type="submit" class="btn btn-success w-100">Registrarse</button>
+                    <a href="login.php" class="btn btn-link w-100">Ya tengo cuenta</a>
                 </form>
             </div>
         </div>
@@ -70,4 +57,5 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </div>
 </body>
 </html>
+
 
